@@ -50,3 +50,24 @@ Out of scope:
 - [MVP Scope](docs/mvp_scope.md)
 - [Success Definition](docs/success_definition.md)
 
+## M1 Typed Data Tools
+
+The first implementation milestone defines typed tools for deterministic data collection.
+
+Run the combined collector:
+
+```bash
+python -m app.runtime.tools.collect NVDA
+```
+
+Run individual tools:
+
+```bash
+python -m app.runtime.tools.company_profile NVDA
+python -m app.runtime.tools.market_data NVDA
+python -m app.runtime.tools.market_data NVDA --financials
+python -m app.runtime.tools.sec_filings NVDA
+python -m app.runtime.tools.news_search NVDA
+```
+
+`yfinance` is optional at runtime. If it is not installed, or if live data fetches fail, tools return deterministic sample data with source quality marked as `sample`. This keeps the harness wiring testable before live providers are configured.

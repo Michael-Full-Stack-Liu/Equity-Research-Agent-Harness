@@ -1,0 +1,7 @@
+pydantic>=2.13
+langgraph>=1.0
+langchain>=1.0
+langsmith>=0.4
+yfinance>=0.2
+pytest>=8.0
+
