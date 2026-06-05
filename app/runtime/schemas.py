@@ -106,7 +106,6 @@ class TickerDataBundle(BaseModel):
     market_snapshot: MarketSnapshot
     financial_metrics: FinancialMetrics
     filing_facts: FilingFacts
-    news: NewsSearchResult
 
     def to_json(self) -> str:
         return self.model_dump_json(indent=2)

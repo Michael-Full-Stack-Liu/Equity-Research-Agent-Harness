@@ -40,7 +40,6 @@ class ToolTests(unittest.TestCase):
         self.assertEqual(bundle.company_profile.company_name, "NVIDIA Corporation")
         self.assertEqual(bundle.market_snapshot.ticker, "NVDA")
         self.assertEqual(bundle.filing_facts.ticker, "NVDA")
-        self.assertTrue(bundle.news.items)
 
 
 if __name__ == "__main__":

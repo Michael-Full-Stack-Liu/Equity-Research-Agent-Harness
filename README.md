@@ -1,73 +1,106 @@
-# Equity Research Agent Harness
+# Equity Research Workflow Automation Agent
 
-An agent reliability harness for equity research agents.
+An AI business automation MVP that turns a manual equity research workflow into a traceable LangGraph agent.
 
-The project takes a US stock ticker as input and produces an auditable equity research memo. The goal is not to prove investment alpha or provide personalized financial advice. The goal is to make an LLM-powered research workflow observable, replayable, evaluable, and improvable.
+The project takes a US stock ticker as input, gathers company and market context, asks Gemini 3 Flash to draft a non-personalized equity research memo, and uses LangSmith for tracing, debugging, and later evaluations.
 
-## MVP Goal
+## Current Direction
 
-Build a LangGraph-based equity research workflow and a harness that can show:
+This is not a trading bot, portfolio advisor, or backtesting system. The goal is to demonstrate practical AI workflow automation:
 
-- what the agent did,
-- where it failed,
-- whether the final memo is evidence-grounded,
-- whether the run stayed within cost and compliance limits,
-- and whether an optimized version improves strict success rate over a baseline.
+- model a business process as a LangGraph workflow
+- connect typed data tools
+- generate a useful research memo with an LLM
+- inspect traces in LangSmith
+- iterate prompts and workflow based on observed failures
 
-## Current Scope
+## MVP Workflow
 
-Input:
+```text
+ticker
+-> collect_ticker_data
+-> build_prompt_context
+-> draft_memo_with_gemini
+-> return memo
+-> trace run in LangSmith
+```
 
-- US stock ticker, for example `NVDA`, `AAPL`, `MSFT`.
+## Stack
 
-Output:
-
-- Structured equity research memo
-- Evidence table
-- Non-personalized research view
-- Confidence and limitations
-- Local episode trace
-
-Out of scope:
-
-- Personalized investment advice
-- Trading execution
-- Portfolio allocation
-- Backtesting
-- Short-term price prediction
-
-## Planned Stack
-
-- Runtime: LangGraph
-- Observability: local episode store first, LangSmith later
-- Data: yfinance, SEC EDGAR, and a news/search provider or stub
+- Workflow: LangGraph
+- LLM: Gemini 3 Flash
+- Tracing and evals: LangSmith
+- Data tools: yfinance, SEC EDGAR, and MVP sample fallbacks
 - Schemas: Pydantic
-- Evaluation: local regression runner with outcome, grounding, compliance, and cost evaluators
 
-## Documentation
+## Setup
 
-- [Project Plan](PROJECT_PLAN.md)
-- [MVP Scope](docs/mvp_scope.md)
-- [Success Definition](docs/success_definition.md)
+Install dependencies:
 
-## M1 Typed Data Tools
-
-The first implementation milestone defines typed tools for deterministic data collection.
-
-Run the combined collector:
-
-```bash
-python -m app.runtime.tools.collect NVDA
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Run individual tools:
+Configure environment variables:
 
-```bash
-python -m app.runtime.tools.company_profile NVDA
-python -m app.runtime.tools.market_data NVDA
-python -m app.runtime.tools.market_data NVDA --financials
-python -m app.runtime.tools.sec_filings NVDA
-python -m app.runtime.tools.news_search NVDA
+```powershell
+copy .env.example .env
 ```
 
-`yfinance` is optional at runtime. If it is not installed, or if live data fetches fail, tools return deterministic sample data with source quality marked as `sample`. This keeps the harness wiring testable before live providers are configured.
+Required for live LLM runs:
+
+```text
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3-flash-preview
+```
+
+Optional LangSmith tracing:
+
+```text
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=
+LANGSMITH_PROJECT=equity-research-workflow-agent
+```
+
+Check runtime tracing config:
+
+```powershell
+.\.venv\Scripts\python.exe -m app.runtime.agent --ticker NVDA --show-config
+```
+
+## Existing Tools
+
+The typed data tools are already implemented:
+
+```powershell
+.\.venv\Scripts\python.exe -m app.runtime.tools.collect NVDA
+```
+
+Individual tools:
+
+```powershell
+.\.venv\Scripts\python.exe -m app.runtime.tools.company_profile NVDA
+.\.venv\Scripts\python.exe -m app.runtime.tools.market_data NVDA
+.\.venv\Scripts\python.exe -m app.runtime.tools.market_data NVDA --financials
+.\.venv\Scripts\python.exe -m app.runtime.tools.sec_filings NVDA
+.\.venv\Scripts\python.exe -m app.runtime.tools.news_search NVDA
+```
+
+If live providers fail, tools return deterministic sample data and mark source quality as `sample`.
+
+## MVP Build Steps
+
+1. Keep typed tools.
+2. Add a minimal LangGraph workflow.
+3. Add a Gemini memo node.
+4. Enable LangSmith tracing.
+5. Create a small LangSmith eval dataset.
+6. Improve prompts and workflow from trace/eval findings.
+
+## Run The MVP Agent
+
+```powershell
+.\.venv\Scripts\python.exe -m app.runtime.agent --ticker NVDA
+```
+
+Without `GEMINI_API_KEY`, the workflow returns a fallback memo so the graph can still be tested. With `GEMINI_API_KEY`, the memo node calls Gemini 3 Flash.
